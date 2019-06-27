@@ -1,7 +1,6 @@
 package app.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class MLP {
@@ -16,7 +15,7 @@ public class MLP {
 	 */
 	public String inicialiar(float bias, int tamW, int... qtdPerceptronCamada) {
 		this.camadas  = new ArrayList<>();
-		StringBuffer s = new StringBuffer("\nIniciando MLP com "+ qtdPerceptronCamada.length +" camadas");
+		StringBuffer s = new StringBuffer("\n------------Iniciando MLP com "+ qtdPerceptronCamada.length +" camadas");
 		for(int i = 0 ; i < qtdPerceptronCamada.length ; i++) { // para cada camada desejada
 			List<Perceptron> camada  = new ArrayList<>();
 			for(int j = 0 ; j < qtdPerceptronCamada[i] ; j++) { // para cada Perceptron desejado
@@ -24,7 +23,9 @@ public class MLP {
 				camada.add(new Perceptron(new double[tamW], bias)); 
 			}
 			tamW = qtdPerceptronCamada[i]; // tamanho de vetor de pessos da proxima camada depende do tamanh da quantidade de Nos da camada anterior
-			s.append("\nTodos os perceptrons da camada foram adicionados\n.Novo tamanho vetor pesos para proxíma camada "+tamW);
+			if(i!= qtdPerceptronCamada.length -1)
+				s.append("\nTodos os perceptrons da camada foram adicionados"
+						+ "\nNovo tamanho vetor pesos para proxíma camada "+tamW);
 			camadas.add(camada);
 		}
 		return s.toString();
@@ -43,6 +44,8 @@ public class MLP {
 			}
 			x = attX; // atualizando vetor com as saidas da camada anterior (Assim a saída de uma camada é entrada para próxima)
 		}
+		
+		
 	}
 
 	/**
@@ -53,6 +56,7 @@ public class MLP {
 		
 		// caso 1 : o no está na camada de saída
 		List<Perceptron> camadaSaida = camadas.get(camadas.size()-1);
+		
 		for(Perceptron p : camadaSaida)
 			p.gradienteLocal = p.erro(y) * p.derivada();
 		// caso 2 : o no está em uma camada oculta;
@@ -73,7 +77,27 @@ public class MLP {
 						p.wk[j] = n * perceptron.gradienteLocal * perceptron.yk;
 				}
 			}
+	
+	}
+	
+	public double energiaMediaErro(double y) {
+		List<Perceptron> camadaSaida = camadas.get(camadas.size()-1);
 		
+		double energiaMediaErro = 0;
+		for(Perceptron p : camadaSaida)
+			energiaMediaErro += p.energiaErro(y);
+		energiaMediaErro /= camadaSaida.size();
+		
+		return energiaMediaErro;
+	}
+	
+	public double saidadaRede() {
+		List<Perceptron> camadaSaida = camadas.get(camadas.size()-1);
+		double y = 0;
+		for(Perceptron p : camadaSaida)
+			y += p.yk;
+		y /= camadaSaida.size();
+		return y;
 	}
 }
 

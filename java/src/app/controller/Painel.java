@@ -3,8 +3,6 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
-import com.sun.media.sound.FFT;
-
 import app.App;
 import app.model.Base;
 import app.model.FAFactory;
@@ -52,6 +50,12 @@ public class Painel {
 
     @FXML
     void rodar(ActionEvent event) {
+    	if(base == null || (base != null && base.toString().contains("Base não foi devidamente carregada"))) {
+    		Alert a = new Alert(AlertType.WARNING);
+			a.setContentText("É necessário carregar a base de dados primeiro");
+			a.show();
+    		return;
+    	}
     	try {
     		// pegar dados da tela
     		float b = (!bFld.getText().trim().equals(""))? Float.parseFloat(bFld.getText().trim()): 1f;
@@ -75,25 +79,49 @@ public class Painel {
 	    	
 	    	//configurar MLP
 	    	MLP mlp = new MLP();
-	    	logArea.setText(mlp.inicialiar(b, base.getAtributos().size() -2 , tamCamadas));
+	    	logArea.setText(mlp.inicialiar(b, base.getAtributos().size() -1 , tamCamadas));
 	    	
 	    	// para cada elemento do treinamento fazer propagação positiva e negativa
-	    	logArea.appendText("\n Iniciando treinamento");
+	    	logArea.appendText("\n\n------------Iniciando treinamento------------");
 	    	for(int i = 0 ; i < valoresTreinamento.size() ; i++) {
 	    		
-	    		double[] caracteristicas = Arrays.copyOf(valoresTreinamento.get(i),valoresTreinamento.size()-2);
+	    		double[] caracteristicas = Arrays.copyOf(valoresTreinamento.get(i),valoresTreinamento.get(i).length-1);
 	    		mlp.programacaoPositiva(caracteristicas);// excluindo a classe
 	    		logArea.appendText("\nPropagando "+ Arrays.toString(caracteristicas)+" na rede");
 	    		
 	    		double yDesejado = valoresTreinamento.get(i)[valoresTreinamento.get(i).length-1];
+	    		logArea.appendText("\n\tEnergia Média do erro = "+mlp.energiaMediaErro(yDesejado));
 	    		mlp.retropropagacaoErro(yDesejado, n);
 	    		logArea.appendText("\nRetropropagando "+ yDesejado +" na rede\n");
+	    		
 	    	}
-	    	logArea.appendText("\nFim treinamento");
+	    	logArea.appendText("\n------------Fim treinamento------------");
+	    	
+	    	logArea.appendText("\n\n------------Iniciando teste------------");
+	    	//int acerto = 0;
+	    	for(double[] valor : valoresTeste) {
+	    		double[] caracteristicas = Arrays.copyOf(valor,valor.length-1);
+	    		double yDesejado = valor[valor.length-1];
+	    		mlp.programacaoPositiva(caracteristicas);
+	    		double saidaReal = mlp.saidadaRede();
+	    		logArea.appendText("\nPropagando "+ Arrays.toString(caracteristicas)+" na rede");
+    			logArea.appendText("\n\tSaída real " + saidaReal + " Saída Desejada "+yDesejado+"\n");
+    			
+    			/*double taxa = base.getClasses().get(1);
+    			double limiteSuperior = taxa;
+    			for(double classe :base.getClasses()) {
+    				if(yDesejado == classe && saidaReal >= classe && saidaReal < limiteSuperior)
+    					acerto++;
+					limiteSuperior += taxa;
+    			}*/
+	    	}
+	    	//logArea.appendText("\n\nAccuracy  = "+ acerto / valoresTeste.size()+" %");
+	    	
+	    	logArea.appendText("\n\n------------Fim teste------------");
 	    	
     	}catch (Exception e) {
     		e.printStackTrace();
-			Alert a = new Alert(AlertType.ERROR);
+			Alert a = new Alert(AlertType.WARNING);
 			a.setContentText("Parametros de configuração invalidos");
 			a.show();
 		}

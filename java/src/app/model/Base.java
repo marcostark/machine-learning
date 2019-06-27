@@ -17,6 +17,8 @@ public class Base {
 	
 	private List<double[]> valores;
 	
+	private List<Double> classes;
+	
 	public boolean carregar(File dir) {
 		try(InputStreamReader isr = new InputStreamReader(new FileInputStream(dir))){
 			try(Scanner arq = new Scanner(isr)){
@@ -40,6 +42,7 @@ public class Base {
 					
 					}
 				}
+				discritizarClasse();
 				if(!atributos.isEmpty() || !valores.isEmpty())
 					return false;
 			}
@@ -62,15 +65,6 @@ public class Base {
 		tvt.add(valoresEmbaralhados.subList(0, tamTreinamento));
 		tvt.add(valoresEmbaralhados.subList(tamTreinamento+1, valoresEmbaralhados.size()-1));
 		return tvt;
-	}
-	
-	
-	public List<String[]> getAtributos() {
-		return atributos;
-	}
-
-	public List<double[]> getValores() {
-		return valores;
 	}
 	
 	private double[] passarArrayEmDouble(String[] strings) {
@@ -100,5 +94,39 @@ public class Base {
 		}else {
 			return "Base não foi devidamente carregada";
 		}
+	}
+	
+	public void discritizarClasse() {
+		List<Double> classesValores = new ArrayList<>();   
+		// procurar valores semelhantes
+		for(double[] valor :valores) {
+			double y = valor[valor.length-1];
+			if(!classesValores.contains(y))
+				classesValores.add(y);
+		}
+		double limite = Double.parseDouble("0."+(100 / classesValores.size()));
+		//substituir por valor inteiro
+		for(double[] valor :valores)
+			valor[valor.length-1] = classesValores.indexOf(valor[valor.length-1]) * limite;
+		
+		this.classes = new ArrayList<>();   
+		for(double[] valor :valores) {
+			double y = valor[valor.length-1];
+			if(!classes.contains(y))
+				classes.add(y);
+		}
+		
+	}
+	
+	public List<String[]> getAtributos() {
+		return atributos;
+	}
+
+	public List<double[]> getValores() {
+		return valores;
+	}
+	
+	public List<Double> getClasses() {
+		return classes;
 	}
 }
