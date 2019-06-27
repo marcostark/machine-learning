@@ -16,10 +16,7 @@ public class Base {
 	
 	private List<String[]> valores;
 	
-	
-	public float[] carregar(File dir) {
-		float[] base = new float[3];
-		
+	public boolean carregar(File dir) {
 		try(InputStreamReader isr = new InputStreamReader(new FileInputStream(dir))){
 			try(Scanner arq = new Scanner(isr)){
 				atributos = new ArrayList<>();
@@ -29,23 +26,25 @@ public class Base {
 					if(linhaArq.contains("@attribute")) {
 						String[] campos = linhaArq.replace("@attribute","").trim().split(" +");
 						atributos.add(campos);
-					}else if(linhaArq.contains("@data"))
+					}else if(linhaArq.equals("@data"))
 						break;
 				}
 				valores = new ArrayList<String[]>();
 				// Continuando a ler arquivo linha a linha a fim de armazenar valores em lista
 				while(arq.hasNextLine()) {
-					String linhaArq = arq.nextLine().toLowerCase().trim();
-					if(!linhaArq.equals("")) {
+					String linhaArq = arq.nextLine().trim();
+					if(!linhaArq.equals(""))
 						valores.add(linhaArq.split(","));
-					}
 				}
+				if(!atributos.isEmpty() || !valores.isEmpty())
+					return false;
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return base;
+		return true;
 	}
+	
 	
 	@Override
 	public String toString() {
