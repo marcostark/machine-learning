@@ -1,6 +1,7 @@
 package app.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MLP {
@@ -13,19 +14,20 @@ public class MLP {
 	 * @param tamW tamanho de vetor de caracteristicas para primeira camada
 	 * @param qtdPerceptronCamada matriz contendo quantidade de camadas e quantidade de perceptrons para cada uma
 	 */
-	public void inicialiar(float bias, int tamW, int... qtdPerceptronCamada) {
+	public String inicialiar(float bias, int tamW, int... qtdPerceptronCamada) {
 		this.camadas  = new ArrayList<>();
-		System.out.println("Iniciando MLP com "+ qtdPerceptronCamada.length +" camadas");
+		StringBuffer s = new StringBuffer("\nIniciando MLP com "+ qtdPerceptronCamada.length +" camadas");
 		for(int i = 0 ; i < qtdPerceptronCamada.length ; i++) { // para cada camada desejada
 			List<Perceptron> camada  = new ArrayList<>();
 			for(int j = 0 ; j < qtdPerceptronCamada[i] ; j++) { // para cada Perceptron desejado
-				System.out.println("\t"+(j+1)+" - novo perceptron camada "+i);
+				s.append("\n\t"+(j+1)+" - novo perceptron camada "+i);
 				camada.add(new Perceptron(new double[tamW], bias)); 
 			}
 			tamW = qtdPerceptronCamada[i]; // tamanho de vetor de pessos da proxima camada depende do tamanh da quantidade de Nos da camada anterior
-			System.out.println("Todos os perceptrons da camada foram adicionados\n.Novo tamanho vetor pesos para proxíma camada "+tamW);
+			s.append("\nTodos os perceptrons da camada foram adicionados\n.Novo tamanho vetor pesos para proxíma camada "+tamW);
 			camadas.add(camada);
 		}
+		return s.toString();
 	}
 	
 	/**
