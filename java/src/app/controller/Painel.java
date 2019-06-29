@@ -39,6 +39,12 @@ public class Painel {
     
     @FXML
     private TextField bFld;
+    
+    @FXML
+    private TextField epocaFld;
+    
+    @FXML
+    private TextField mFld;
 
     @FXML
     private TextArea logArea;
@@ -50,17 +56,21 @@ public class Painel {
 
     @FXML
     void rodar(ActionEvent event) {
-    	if(base == null || (base != null && base.toString().contains("Base não foi devidamente carregada"))) {
+    	if(base == null || (base != null && base.toString().contains("Base não foi devidamente carregada"))) 
+    	{
     		Alert a = new Alert(AlertType.WARNING);
 			a.setContentText("É necessário carregar a base de dados primeiro");
 			a.show();
     		return;
     	}
-    	try {
+    	try 
+    	{
     		// pegar dados da tela
     		float b = (!bFld.getText().trim().equals(""))? Float.parseFloat(bFld.getText().trim()): 1f;
     		double a = Double.parseDouble(aFld.getText().trim());
     		double n = Double.parseDouble(nFld.getText().trim());
+    		double momentum = Double.parseDouble(mFld.getText().trim());
+    		int epocas = (!epocaFld.getText().trim().equals(""))? Integer.parseInt(epocaFld.getText().trim()) : 10;
     		
     		int[] tamCamadasDefault = {3,3,1};
     		int[] tamCamadas = (!camadasFld.getText().trim().equals(""))? passarArrayEmInt(camadasFld.getText().trim().split(",")) : tamCamadasDefault;
@@ -81,25 +91,28 @@ public class Painel {
 	    	MLP mlp = new MLP();
 	    	logArea.setText(mlp.inicialiar(b, base.getAtributos().size() -1 , tamCamadas));
 	    	
-	    	// para cada elemento do treinamento fazer propagação positiva e negativa
 	    	logArea.appendText("\n\n------------Iniciando treinamento------------");
-	    	for(int i = 0 ; i < valoresTreinamento.size() ; i++) {
-	    		
-	    		double[] caracteristicas = Arrays.copyOf(valoresTreinamento.get(i),valoresTreinamento.get(i).length-1);
-	    		mlp.programacaoPositiva(caracteristicas);// excluindo a classe
-	    		logArea.appendText("\nPropagando "+ Arrays.toString(caracteristicas)+" na rede");
-	    		
-	    		double yDesejado = valoresTreinamento.get(i)[valoresTreinamento.get(i).length-1];
-	    		logArea.appendText("\n\tEnergia Média do erro = "+mlp.energiaMediaErro(yDesejado));
-	    		mlp.retropropagacaoErro(yDesejado, n);
-	    		logArea.appendText("\nRetropropagando "+ yDesejado +" na rede\n");
-	    		
+	    	for( int i= 0 ; i < epocas ; i++) 
+	    	{
+		    	double energiaMediaErro = 0 ;
+		    	logArea.appendText("\nIniciando época ->"+(i+1)+"<-");
+		    	for(int j = 0 ; j < valoresTreinamento.size() ; j++)  // para cada elemento do treinamento fazer propagação positiva e negativa
+	    		{
+		    		double[] caracteristicas = Arrays.copyOf(valoresTreinamento.get(j),valoresTreinamento.get(j).length-1);
+		    		mlp.programacaoPositiva(caracteristicas);
+		    		
+		    		double yDesejado = valoresTreinamento.get(j)[valoresTreinamento.get(j).length-1];
+		    		energiaMediaErro += mlp.sumEnergiaErroIteracaoN(yDesejado);
+		    		mlp.retropropagacaoErro(yDesejado, n, momentum);
+		    	}
+	    		logArea.appendText("\nEnergia Média do erro = "+(energiaMediaErro / valoresTreinamento.size()));
 	    	}
 	    	logArea.appendText("\n------------Fim treinamento------------");
 	    	
 	    	logArea.appendText("\n\n------------Iniciando teste------------");
-	    	//int acerto = 0;
-	    	for(double[] valor : valoresTeste) {
+	    	int acerto = 0;
+	    	for(double[] valor : valoresTeste) 
+	    	{
 	    		double[] caracteristicas = Arrays.copyOf(valor,valor.length-1);
 	    		double yDesejado = valor[valor.length-1];
 	    		mlp.programacaoPositiva(caracteristicas);
@@ -107,19 +120,22 @@ public class Painel {
 	    		logArea.appendText("\nPropagando "+ Arrays.toString(caracteristicas)+" na rede");
     			logArea.appendText("\n\tSaída real " + saidaReal + " Saída Desejada "+yDesejado+"\n");
     			
-    			/*double taxa = base.getClasses().get(1);
+    			double taxa = base.getClasses().get(1);
     			double limiteSuperior = taxa;
-    			for(double classe :base.getClasses()) {
+    			for(double classe :base.getClasses()) 
+    			{
     				if(yDesejado == classe && saidaReal >= classe && saidaReal < limiteSuperior)
     					acerto++;
 					limiteSuperior += taxa;
-    			}*/
+    			}
 	    	}
-	    	//logArea.appendText("\n\nAccuracy  = "+ acerto / valoresTeste.size()+" %");
+	    	logArea.appendText("\n\nAccuracy  = "+ ((double)100* acerto / valoresTeste.size())+" %");
 	    	
 	    	logArea.appendText("\n\n------------Fim teste------------");
 	    	
-    	}catch (Exception e) {
+    	}
+    	catch (Exception e) 
+    	{
     		e.printStackTrace();
 			Alert a = new Alert(AlertType.WARNING);
 			a.setContentText("Parametros de configuração invalidos");

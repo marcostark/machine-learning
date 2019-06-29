@@ -6,6 +6,10 @@ public class Perceptron{
 	
 	double[] wk;
 	
+	double[] variacaoAnteriorWk;
+	
+	double[] x;
+	
 	float bias;
 	
 	public static FuncaoAtivacao funcaoAtivacao;
@@ -16,6 +20,7 @@ public class Perceptron{
 	
 	public Perceptron(double[] wk, float bias) {
 		this.wk = wk;
+		this.variacaoAnteriorWk = new double[wk.length];
 		SecureRandom sr = new SecureRandom();
 		for(int i = 0 ; i < wk.length ; i++)
 			wk[i] = sr.nextDouble(); // valores iniciais aleatórios entre 0 e 1 para pesos
@@ -23,6 +28,7 @@ public class Perceptron{
 	}
 
 	public double ativacao(double x[]) {
+		this.x = x;
 		float vk = combinadorLinar(x);
 		this.yk = funcaoAtivacao.executar(vk);
 		return yk;
@@ -40,7 +46,7 @@ public class Perceptron{
 	}
 	
 	public double derivada(){
-		return yk * ( 1 -  yk );
+		return FAFactory.a * yk * ( 1 -  yk );
 	}
 	
 	public double erro(double y) {

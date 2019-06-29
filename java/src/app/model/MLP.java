@@ -52,13 +52,17 @@ public class MLP {
 	 * Retropropagar o erro por toda rede, a fim de corrigir pesos dos Nó
 	 * @param y valor real
 	 */
-	public void retropropagacaoErro(double y, double n) {
+	public void retropropagacaoErro(double y, double n, double constanteMomento) {
 		
 		// caso 1 : o no está na camada de saída
 		List<Perceptron> camadaSaida = camadas.get(camadas.size()-1);
 		
-		for(Perceptron p : camadaSaida)
+		for(Perceptron p : camadaSaida) 
+		{
 			p.gradienteLocal = p.erro(y) * p.derivada();
+			ajustarPesos(p, n, constanteMomento);
+			
+		}
 		// caso 2 : o no está em uma camada oculta;
 		if(camadaSaida.size() > 1)
 			for(int i = camadas.size()-2 ; i > 0 ; i--) { // inicia na camada anterior a de saída e itera todas em ordem reversa
@@ -69,29 +73,31 @@ public class MLP {
 						sumGlp += p.gradienteLocal * p.wk[j]; // j é também o identificador do peso do perceptron.
 					Perceptron perceptron = camadas.get(i).get(j);
 					perceptron.gradienteLocal = perceptron.derivada() * sumGlp;
-				}
-				// atualizando pesos
-				for(int j = 0 ; j < camadas.get(i).size() ; j++) { // para cada perceptron da camada em questão
-					Perceptron perceptron = camadas.get(i).get(j);
-					for(Perceptron p : camadas.get(i+1)) // pega a soma ponderada do gradiente local pelo peso
-						p.wk[j] = n * perceptron.gradienteLocal * perceptron.yk;
+					ajustarPesos(perceptron, n, constanteMomento);
 				}
 			}
 	
 	}
 	
-	public double energiaMediaErro(double y) {
+	private void  ajustarPesos(Perceptron p,double n, double constanteMomento) {
+		for(int i =0 ; i < p.wk.length ; i++) { // coreção dos pesos da camada de saída
+			double variacaoWk =  n * p.gradienteLocal * p.x[i];
+			p.wk[i] = p.wk[i] + constanteMomento * p.variacaoAnteriorWk[i] + variacaoWk;
+			p.variacaoAnteriorWk[i] = variacaoWk;
+		}
+	}
+	
+	public double sumEnergiaErroIteracaoN(double y) 
+	{
 		List<Perceptron> camadaSaida = camadas.get(camadas.size()-1);
-		
 		double energiaMediaErro = 0;
 		for(Perceptron p : camadaSaida)
 			energiaMediaErro += p.energiaErro(y);
-		energiaMediaErro /= camadaSaida.size();
-		
 		return energiaMediaErro;
 	}
 	
-	public double saidadaRede() {
+	public double saidadaRede() 
+	{
 		List<Perceptron> camadaSaida = camadas.get(camadas.size()-1);
 		double y = 0;
 		for(Perceptron p : camadaSaida)

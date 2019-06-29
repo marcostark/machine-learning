@@ -39,7 +39,6 @@ public class Base {
 					String linhaArq = arq.nextLine().trim();
 					if(!linhaArq.equals("")) {
 						valores.add(passarArrayEmDouble(linhaArq.split(",")));
-					
 					}
 				}
 				discritizarClasse();
@@ -105,7 +104,7 @@ public class Base {
 				classesValores.add(y);
 		}
 		double limite = Double.parseDouble("0."+(100 / classesValores.size()));
-		//substituir por valor inteiro
+		//substituir por valor de ponto flutuante
 		for(double[] valor :valores)
 			valor[valor.length-1] = classesValores.indexOf(valor[valor.length-1]) * limite;
 		
