@@ -1,14 +1,14 @@
 from MLP import *
 import load_mnist
 
-EPOCHS = 2
-LEARNING_RATE = 3.0
-MINI_BATCH = 10
+EPOCAS = 2
+TAXA_DE_APRENDIZAGEM = 3.0
+MINI_LOTES = 10
 
 
-training_data, validation_data, test_data = load_mnist.load_data_wrapper()
-training_data = list(training_data)
+CONJUNTO_TREINAMENTO, CONJUNTO_VALIDACAO, CONJUNTO_TESTE = load_mnist.load_data_wrapper()
+CONJUNTO_TREINAMENTO = list(CONJUNTO_TREINAMENTO)
 
 
 net = Network([784, 30, 10])
-net.SGD(training_data, EPOCHS, MINI_BATCH, LEARNING_RATE, test_data=test_data)
+net.SGD(CONJUNTO_TREINAMENTO, EPOCAS, MINI_LOTES, TAXA_DE_APRENDIZAGEM, test_data=CONJUNTO_TESTE)
