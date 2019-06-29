@@ -26,7 +26,7 @@ def load_dataset_to_list(filename, split, trainingSet=[] , testSet=[]):
     
     return (trainingSet, testSet)
 
-def distanciaEuclidiana(instancia1, instancia2, length):
+def distancia_euclidiana(instancia1, instancia2, length):
     '''
     Calculo da distancia euclidiana que é definida como a raiz quadrada da soma
     das diferenças quadrada entra duas matrizes de números
@@ -38,12 +38,12 @@ def distanciaEuclidiana(instancia1, instancia2, length):
         distancia_entre_pontos += pow((instancia1[x] - instancia2[x]), 2)
     return math.sqrt(distancia_entre_pontos)
 
-def obterVizinhos(trainingSet, testInstance, k):
+def obter_vizinhos(trainingSet, testInstance, k):
     # Calculo da similiridade entre duas instancias de dados.     
 	distances = []
 	length = len(testInstance)-1
 	for x in range(len(trainingSet)):
-		dist = distanciaEuclidiana(testInstance, trainingSet[x], length)
+		dist = distancia_euclidiana(testInstance, trainingSet[x], length)
 		distances.append((trainingSet[x], dist))
 	distances.sort(key=operator.itemgetter(1))
 	neighbors = []
@@ -53,7 +53,7 @@ def obterVizinhos(trainingSet, testInstance, k):
 
 # Função que obterm a maioria dos votos de um numero de vizinho proximos.
 # O ultimo atributo corresponde a classe
-def getResposta(vizinhos):
+def obtem_resposta(vizinhos):
 	votos ={}
 	for x in range(len(vizinhos)):
 		response = vizinhos[x][-1]
@@ -66,7 +66,7 @@ def getResposta(vizinhos):
 
 # CAlcula o total das predições corretas, e retorna 
 # a taxa de acerto em porcetagem
-def getAcuracia(testSet, predicoes):
+def acuracia(testSet, predicoes):
 	corretos = 0
 	tamanhoTeste = len(testSet)
 	for i in range(tamanhoTeste):
@@ -86,9 +86,9 @@ k = 3
 tamanhoDataset = len(test)
 
 for i in range(tamanhoDataset):
-  vizinhos = obterVizinhos(train, test[i], k)
-  result = getResposta(vizinhos)
+  vizinhos = obter_vizinhos(train, test[i], k)
+  result = obtem_resposta(vizinhos)
   predicoes.append(result)
   print('> Predição = {} - Real = {}'.format(result,test[i][-1]))
-accuracy = getAcuracia(test, predicoes)
-print('Acurácia: {:.2f} % '.format(accuracy))
+acuracia = acuracia(test, predicoes)
+print('Acurácia: {:.2f} % '.format(acuracia))
